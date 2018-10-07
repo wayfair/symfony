@@ -98,20 +98,7 @@ class LockTest extends TestCase
         $lock->refresh();
     }
 
-  public function testRefreshForNonExpirableStore()
-  {
-    $key = new Key(uniqid(__METHOD__, true));
-    $store = $this->getMockBuilder(StoreInterface::class)->getMock();
-    $lock = new Lock($key, $store, 10);
-
-    $store
-        ->expects($this->never())
-        ->method('putOffExpiration');
-
-    $lock->refresh();
-  }
-
-    public function testRefreshCustom()
+    public function testRefreshCustomForExpirableStore()
     {
         $key = new Key(uniqid(__METHOD__, true));
         $store = $this->getMockBuilder(ExpirableStoreInterface::class)->getMock();

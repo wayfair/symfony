@@ -11,8 +11,8 @@
 
 namespace Symfony\Component\Lock\Tests\Store;
 
+use Symfony\Component\Lock\ExpirableStoreInterface;
 use Symfony\Component\Lock\Key;
-use Symfony\Component\Lock\StoreInterface;
 
 /**
  * @author Jérémy Derussé <jeremy@derusse.com>
@@ -29,7 +29,7 @@ trait ExpiringStoreTestTrait
     /**
      * @see AbstractStoreTest::getStore()
      */
-    abstract protected function getStore();
+    abstract protected function getStore(): ExpirableStoreInterface;
 
     /**
      * Tests the store automatically delete the key when it expire.
@@ -41,7 +41,6 @@ trait ExpiringStoreTestTrait
         $key = new Key(uniqid(__METHOD__, true));
         $clockDelay = $this->getClockDelay();
 
-        /** @var StoreInterface $store */
         $store = $this->getStore();
 
         $store->save($key);
@@ -61,7 +60,6 @@ trait ExpiringStoreTestTrait
     {
         $key = new Key(uniqid(__METHOD__, true));
 
-        /** @var StoreInterface $store */
         $store = $this->getStore();
 
         $store->save($key);
@@ -81,7 +79,6 @@ trait ExpiringStoreTestTrait
         // Amount a microsecond used to order async actions
         $key = new Key(uniqid(__METHOD__, true));
 
-        /** @var StoreInterface $store */
         $store = $this->getStore();
 
         $store->save($key);
@@ -96,7 +93,6 @@ trait ExpiringStoreTestTrait
     {
         $key = new Key(uniqid(__METHOD__, true));
 
-        /** @var StoreInterface $store */
         $store = $this->getStore();
 
         $store->save($key);
