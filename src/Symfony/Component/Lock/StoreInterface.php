@@ -42,18 +42,6 @@ interface StoreInterface
     public function waitAndSave(Key $key);
 
     /**
-     * Extends the ttl of a resource.
-     *
-     * If the store does not support this feature it should throw a NotSupportedException.
-     *
-     * @param float $ttl amount of second to keep the lock in the store
-     *
-     * @throws LockConflictedException
-     * @throws NotSupportedException
-     */
-    public function putOffExpiration(Key $key, $ttl);
-
-    /**
      * Removes a resource from the storage.
      *
      * @throws LockReleasingException

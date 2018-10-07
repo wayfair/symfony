@@ -18,8 +18,8 @@ use Symfony\Component\Lock\Exception\InvalidArgumentException;
 use Symfony\Component\Lock\Exception\LockConflictedException;
 use Symfony\Component\Lock\Exception\LockExpiredException;
 use Symfony\Component\Lock\Exception\NotSupportedException;
+use Symfony\Component\Lock\ExpirableStoreInterface;
 use Symfony\Component\Lock\Key;
-use Symfony\Component\Lock\StoreInterface;
 
 /**
  * PdoStore is a StoreInterface implementation using a PDO connection.
@@ -34,7 +34,7 @@ use Symfony\Component\Lock\StoreInterface;
  *
  * @author Jérémy Derussé <jeremy@derusse.com>
  */
-class PdoStore implements StoreInterface
+class PdoStore implements ExpirableStoreInterface
 {
     private $conn;
     private $dsn;

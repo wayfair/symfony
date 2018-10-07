@@ -14,15 +14,15 @@ namespace Symfony\Component\Lock\Store;
 use Symfony\Component\Lock\Exception\InvalidArgumentException;
 use Symfony\Component\Lock\Exception\LockConflictedException;
 use Symfony\Component\Lock\Exception\LockExpiredException;
+use Symfony\Component\Lock\ExpirableStoreInterface;
 use Symfony\Component\Lock\Key;
-use Symfony\Component\Lock\StoreInterface;
 
 /**
  * MemcachedStore is a StoreInterface implementation using Memcached as store engine.
  *
  * @author Jérémy Derussé <jeremy@derusse.com>
  */
-class MemcachedStore implements StoreInterface
+class MemcachedStore implements ExpirableStoreInterface
 {
     private $memcached;
     private $initialTtl;

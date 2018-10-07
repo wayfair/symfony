@@ -12,6 +12,7 @@
 namespace Symfony\Component\Lock\Tests\Store;
 
 use Symfony\Component\Lock\Exception\LockConflictedException;
+use Symfony\Component\Lock\ExpirableStoreInterface;
 use Symfony\Component\Lock\Key;
 use Symfony\Component\Lock\Store\CombinedStore;
 use Symfony\Component\Lock\Store\RedisStore;
@@ -22,7 +23,7 @@ use Symfony\Component\Lock\Strategy\UnanimousStrategy;
 /**
  * @author Jérémy Derussé <jeremy@derusse.com>
  */
-class CombinedStoreTest extends AbstractStoreTest
+class ExpirableCombinedStoreTest extends AbstractStoreTest
 {
     use ExpiringStoreTestTrait;
 
@@ -159,6 +160,106 @@ class CombinedStoreTest extends AbstractStoreTest
 
         try {
             $this->store->save($key);
+        } catch (LockConflictedException $e) {
+            // Catch the exception given this is not what we want to assert in this tests
+        }
+    }
+
+    /**
+     * @expectedException \Symfony\Component\Lock\Exception\LockConflictedException
+     */
+    public function testputOffExpirationThrowsExceptionOnFailure()
+    {
+        $key = new Key(uniqid(__METHOD__, true));
+        $ttl = random_int(1, 10);
+
+        $this->store1
+            ->expects($this->once())
+            ->method('putOffExpiration')
+            ->with($key, $this->lessThanOrEqual($ttl))
+            ->willThrowException(new LockConflictedException());
+        $this->store2
+            ->expects($this->once())
+            ->method('putOffExpiration')
+            ->with($key, $this->lessThanOrEqual($ttl))
+            ->willThrowException(new LockConflictedException());
+
+        $this->strategy
+            ->expects($this->any())
+            ->method('canBeMet')
+            ->willReturn(true);
+        $this->strategy
+            ->expects($this->any())
+            ->method('isMet')
+            ->willReturn(false);
+
+        $this->store->putOffExpiration($key, $ttl);
+    }
+
+    public function testputOffExpirationCleanupOnFailure()
+    {
+        $key = new Key(uniqid(__METHOD__, true));
+        $ttl = random_int(1, 10);
+
+        $this->store1
+            ->expects($this->once())
+            ->method('putOffExpiration')
+            ->with($key, $this->lessThanOrEqual($ttl))
+            ->willThrowException(new LockConflictedException());
+        $this->store2
+            ->expects($this->once())
+            ->method('putOffExpiration')
+            ->with($key, $this->lessThanOrEqual($ttl))
+            ->willThrowException(new LockConflictedException());
+
+        $this->store1
+            ->expects($this->once())
+            ->method('delete');
+        $this->store2
+            ->expects($this->once())
+            ->method('delete');
+
+        $this->strategy
+            ->expects($this->any())
+            ->method('canBeMet')
+            ->willReturn(true);
+        $this->strategy
+            ->expects($this->any())
+            ->method('isMet')
+            ->willReturn(false);
+
+        try {
+            $this->store->putOffExpiration($key, $ttl);
+        } catch (LockConflictedException $e) {
+            // Catch the exception given this is not what we want to assert in this tests
+        }
+    }
+
+    public function testputOffExpirationAbortWhenStrategyCantBeMet()
+    {
+        $key = new Key(uniqid(__METHOD__, true));
+        $ttl = random_int(1, 10);
+
+        $this->store1
+            ->expects($this->once())
+            ->method('putOffExpiration')
+            ->with($key, $this->lessThanOrEqual($ttl))
+            ->willThrowException(new LockConflictedException());
+        $this->store2
+            ->expects($this->never())
+            ->method('putOffExpiration');
+
+        $this->strategy
+            ->expects($this->once())
+            ->method('canBeMet')
+            ->willReturn(false);
+        $this->strategy
+            ->expects($this->any())
+            ->method('isMet')
+            ->willReturn(false);
+
+        try {
+            $this->store->putOffExpiration($key, $ttl);
         } catch (LockConflictedException $e) {
             // Catch the exception given this is not what we want to assert in this tests
         }

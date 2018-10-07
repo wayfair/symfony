@@ -15,6 +15,7 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 use Symfony\Component\Lock\Exception\LockConflictedException;
+use Symfony\Component\Lock\ExpirableStoreInterface;
 use Symfony\Component\Lock\Key;
 use Symfony\Component\Lock\StoreInterface;
 
@@ -81,7 +82,9 @@ class RetryTillSaveStore implements StoreInterface, LoggerAwareInterface
      */
     public function putOffExpiration(Key $key, $ttl)
     {
-        $this->decorated->putOffExpiration($key, $ttl);
+        if ($this->decorated instanceof ExpirableStoreInterface) {
+          $this->decorated->putOffExpiration($key, $ttl);
+        }
     }
 
     /**

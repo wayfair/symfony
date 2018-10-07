@@ -105,11 +105,23 @@ final class Lock implements LockInterface, LoggerAwareInterface
     /**
      * {@inheritdoc}
      */
+    public function isRefreshable() {
+      return $this->store instanceof ExpirableStoreInterface;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function refresh($ttl = null)
     {
+        if (!$this->isRefreshable()) {
+          return;
+        }
+
         if (null === $ttl) {
             $ttl = $this->ttl;
         }
+
         if (!$ttl) {
             throw new InvalidArgumentException('You have to define an expiration duration.');
         }

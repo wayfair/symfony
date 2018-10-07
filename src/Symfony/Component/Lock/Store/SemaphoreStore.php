@@ -100,14 +100,6 @@ class SemaphoreStore implements StoreInterface
     /**
      * {@inheritdoc}
      */
-    public function putOffExpiration(Key $key, $ttl)
-    {
-        // do nothing, the semaphore locks forever.
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function exists(Key $key)
     {
         return $key->hasState(__CLASS__);

@@ -14,6 +14,7 @@ namespace Symfony\Component\Lock\Tests;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Lock\Exception\LockConflictedException;
+use Symfony\Component\Lock\ExpirableStoreInterface;
 use Symfony\Component\Lock\Key;
 use Symfony\Component\Lock\Lock;
 use Symfony\Component\Lock\StoreInterface;
@@ -69,7 +70,7 @@ class LockTest extends TestCase
     public function testAcquireSetsTtl()
     {
         $key = new Key(uniqid(__METHOD__, true));
-        $store = $this->getMockBuilder(StoreInterface::class)->getMock();
+        $store = $this->getMockBuilder(ExpirableStoreInterface::class)->getMock();
         $lock = new Lock($key, $store, 10);
 
         $store
@@ -83,10 +84,10 @@ class LockTest extends TestCase
         $lock->acquire();
     }
 
-    public function testRefresh()
+    public function testRefreshForExpirableStore()
     {
         $key = new Key(uniqid(__METHOD__, true));
-        $store = $this->getMockBuilder(StoreInterface::class)->getMock();
+        $store = $this->getMockBuilder(ExpirableStoreInterface::class)->getMock();
         $lock = new Lock($key, $store, 10);
 
         $store
@@ -97,10 +98,23 @@ class LockTest extends TestCase
         $lock->refresh();
     }
 
+  public function testRefreshForNonExpirableStore()
+  {
+    $key = new Key(uniqid(__METHOD__, true));
+    $store = $this->getMockBuilder(StoreInterface::class)->getMock();
+    $lock = new Lock($key, $store, 10);
+
+    $store
+        ->expects($this->never())
+        ->method('putOffExpiration');
+
+    $lock->refresh();
+  }
+
     public function testRefreshCustom()
     {
         $key = new Key(uniqid(__METHOD__, true));
-        $store = $this->getMockBuilder(StoreInterface::class)->getMock();
+        $store = $this->getMockBuilder(ExpirableStoreInterface::class)->getMock();
         $lock = new Lock($key, $store, 10);
 
         $store

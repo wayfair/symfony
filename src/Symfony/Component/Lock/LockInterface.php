@@ -36,6 +36,13 @@ interface LockInterface
     public function acquire($blocking = false);
 
     /**
+     * Determines if a store supports expiration of locks.
+     *
+     * @return bool
+     */
+    public function isRefreshable();
+
+    /**
      * Increase the duration of an acquired lock.
      *
      * @param float|null $ttl Maximum expected lock duration in seconds

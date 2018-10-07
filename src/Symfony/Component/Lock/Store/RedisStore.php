@@ -16,15 +16,15 @@ use Symfony\Component\Cache\Traits\RedisProxy;
 use Symfony\Component\Lock\Exception\InvalidArgumentException;
 use Symfony\Component\Lock\Exception\LockConflictedException;
 use Symfony\Component\Lock\Exception\LockExpiredException;
+use Symfony\Component\Lock\ExpirableStoreInterface;
 use Symfony\Component\Lock\Key;
-use Symfony\Component\Lock\StoreInterface;
 
 /**
  * RedisStore is a StoreInterface implementation using Redis as store engine.
  *
  * @author Jérémy Derussé <jeremy@derusse.com>
  */
-class RedisStore implements StoreInterface
+class RedisStore implements ExpirableStoreInterface
 {
     private $redis;
     private $initialTtl;

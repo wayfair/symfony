@@ -87,14 +87,6 @@ class ZookeeperStore implements StoreInterface
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function putOffExpiration(Key $key, $ttl)
-    {
-        throw new NotSupportedException();
-    }
-
-    /**
      * Creates a zookeeper node.
      *
      * @param string $node  The node which needs to be created
