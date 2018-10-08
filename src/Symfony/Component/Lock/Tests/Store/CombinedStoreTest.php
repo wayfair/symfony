@@ -29,7 +29,7 @@ class CombinedStoreTest extends AbstractStoreTest
     /**
      * {@inheritdoc}
      */
-    public function getStore()
+    public function getStore(): StoreInterface
     {
       $zookeeper_server = getenv('ZOOKEEPER_HOST').':2181';
 
@@ -39,13 +39,13 @@ class CombinedStoreTest extends AbstractStoreTest
     }
 
     /** @var \PHPUnit_Framework_MockObject_MockObject */
-    private $strategy;
+    protected $strategy;
     /** @var \PHPUnit_Framework_MockObject_MockObject */
-    private $store1;
+    protected $store1;
     /** @var \PHPUnit_Framework_MockObject_MockObject */
-    private $store2;
+    protected $store2;
     /** @var CombinedStore */
-    private $store;
+    protected $store;
 
     protected function setUp()
     {
