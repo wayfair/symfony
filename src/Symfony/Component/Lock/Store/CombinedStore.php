@@ -31,10 +31,8 @@ class CombinedStore implements StoreInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
-    /** @var StoreInterface[] */
-    private $stores;
-    /** @var StrategyInterface */
-    private $strategy;
+    protected $stores;
+    protected $strategy;
 
     /**
      * @param StoreInterface[]  $stores   The list of synchronized stores
