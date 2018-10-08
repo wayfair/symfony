@@ -11,8 +11,8 @@
 
 namespace Symfony\Component\Lock\Tests\Store;
 
-use Symfony\Component\Lock\Store\RedisStore;
 use Symfony\Component\Lock\Store\RetryTillSaveStore;
+use Symfony\Component\Lock\Store\ZookeeperStore;
 
 /**
  * @author Jérémy Derussé <jeremy@derusse.com>
@@ -23,13 +23,10 @@ class RetryTillSaveStoreTest extends AbstractStoreTest
 
     public function getStore()
     {
-        $redis = new \Predis\Client('tcp://'.getenv('REDIS_HOST').':6379');
-        try {
-            $redis->connect();
-        } catch (\Exception $e) {
-            self::markTestSkipped($e->getMessage());
-        }
+        $zookeeper_server = getenv('ZOOKEEPER_HOST').':2181';
 
-        return new RetryTillSaveStore(new RedisStore($redis), 100, 100);
+        $zookeeper = new \Zookeeper(implode(',', array($zookeeper_server)));
+
+        return new RetryTillSaveStore(new ZookeeperStore($zookeeper), 100, 100);
     }
 }

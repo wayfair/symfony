@@ -28,9 +28,9 @@ class RetryTillSaveStore implements StoreInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
-    private $decorated;
-    private $retrySleep;
-    private $retryCount;
+    protected $decorated;
+    protected $retrySleep;
+    protected $retryCount;
 
     /**
      * @param StoreInterface $decorated  The decorated StoreInterface
@@ -74,14 +74,6 @@ class RetryTillSaveStore implements StoreInterface, LoggerAwareInterface
         $this->logger->warning('Failed to store the "{resource}" lock. Abort after {retry} retry.', array('resource' => $key, 'retry' => $retry));
 
         throw new LockConflictedException();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function putOffExpiration(Key $key, $ttl)
-    {
-        $this->decorated->putOffExpiration($key, $ttl);
     }
 
     /**
