@@ -164,6 +164,129 @@ class CombinedStoreTest extends AbstractStoreTest
         }
     }
 
+    /**
+     * @expectedException \Symfony\Component\Lock\Exception\LockConflictedException
+     */
+    public function testputOffExpirationThrowsExceptionOnFailure()
+    {
+        $key = new Key(uniqid(__METHOD__, true));
+        $ttl = random_int(1, 10);
+
+        $this->store1
+            ->expects($this->once())
+            ->method('putOffExpiration')
+            ->with($key, $this->lessThanOrEqual($ttl))
+            ->willThrowException(new LockConflictedException());
+        $this->store2
+            ->expects($this->once())
+            ->method('putOffExpiration')
+            ->with($key, $this->lessThanOrEqual($ttl))
+            ->willThrowException(new LockConflictedException());
+
+        $this->strategy
+            ->expects($this->any())
+            ->method('canBeMet')
+            ->willReturn(true);
+        $this->strategy
+            ->expects($this->any())
+            ->method('isMet')
+            ->willReturn(false);
+
+        $this->store->putOffExpiration($key, $ttl);
+    }
+
+    public function testputOffExpirationCleanupOnFailure()
+    {
+        $key = new Key(uniqid(__METHOD__, true));
+        $ttl = random_int(1, 10);
+
+        $this->store1
+            ->expects($this->once())
+            ->method('putOffExpiration')
+            ->with($key, $this->lessThanOrEqual($ttl))
+            ->willThrowException(new LockConflictedException());
+        $this->store2
+            ->expects($this->once())
+            ->method('putOffExpiration')
+            ->with($key, $this->lessThanOrEqual($ttl))
+            ->willThrowException(new LockConflictedException());
+
+        $this->store1
+            ->expects($this->once())
+            ->method('delete');
+        $this->store2
+            ->expects($this->once())
+            ->method('delete');
+
+        $this->strategy
+            ->expects($this->any())
+            ->method('canBeMet')
+            ->willReturn(true);
+        $this->strategy
+            ->expects($this->any())
+            ->method('isMet')
+            ->willReturn(false);
+
+        try {
+            $this->store->putOffExpiration($key, $ttl);
+        } catch (LockConflictedException $e) {
+            // Catch the exception given this is not what we want to assert in this tests
+        }
+    }
+
+    public function testputOffExpirationAbortWhenStrategyCantBeMet()
+    {
+        $key = new Key(uniqid(__METHOD__, true));
+        $ttl = random_int(1, 10);
+
+        $this->store1
+            ->expects($this->once())
+            ->method('putOffExpiration')
+            ->with($key, $this->lessThanOrEqual($ttl))
+            ->willThrowException(new LockConflictedException());
+        $this->store2
+            ->expects($this->never())
+            ->method('putOffExpiration');
+
+        $this->strategy
+            ->expects($this->once())
+            ->method('canBeMet')
+            ->willReturn(false);
+        $this->strategy
+            ->expects($this->any())
+            ->method('isMet')
+            ->willReturn(false);
+
+        try {
+            $this->store->putOffExpiration($key, $ttl);
+        } catch (LockConflictedException $e) {
+            // Catch the exception given this is not what we want to assert in this tests
+        }
+    }
+
+    public function testPutOffExpirationIgnoreNonExpiringStorage()
+    {
+        $store1 = $this->getMockBuilder(StoreInterface::class)->getMock();
+        $store2 = $this->getMockBuilder(StoreInterface::class)->getMock();
+
+        $store = new CombinedStore(array($store1, $store2), $this->strategy);
+
+        $key = new Key(uniqid(__METHOD__, true));
+        $ttl = random_int(1, 10);
+
+        $this->strategy
+            ->expects($this->any())
+            ->method('canBeMet')
+            ->willReturn(true);
+        $this->strategy
+            ->expects($this->once())
+            ->method('isMet')
+            ->with(2, 2)
+            ->willReturn(true);
+
+        $store->putOffExpiration($key, $ttl);
+    }
+
     public function testExistsDontAskToEveryBody()
     {
         $key = new Key(uniqid(__METHOD__, true));
